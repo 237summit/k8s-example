@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-example
+spec:
+  completions: 5
+  template:
+    spec:
+      containers:
+      - name: centos-container
+        image: centos:7
+        command: ["bash"]
+        args:
+        - "-c"
+        - "echo 'Hello World'; sleep 50; echo 'Bye'"
+      restartPolicy: Never

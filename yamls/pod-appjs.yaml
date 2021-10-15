@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appjs-pod
+spec:
+  containers:
+  - name: appjs-container
+    image: smlinux/appjs
+    ports:
+    - containerPort: 8080

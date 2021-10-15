@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: marvel-heroes-ingress
+spec:
+  rules:
+  - host: node1.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: marvel-service
+            port:
+              number: 80
+  - host: node2.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: thor-service
+            port:
+              number: 80
