@@ -1,19 +1,20 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: ReplicaSet
 metadata:
-  name: sf-nginx
+  name: rs-web
 spec:
-  replicas: 3
-  serviceName: sf-nginx-service
+  replicas: 2
   selector:
     matchLabels:
-      app: webui
+      app: web
   template:
     metadata:
       name: nginx-pod
       labels:
-        app: webui
+        app: web
     spec:
       containers:
       - name: nginx-container
         image: nginx:1.14
+        ports:
+        - containerPort: 80

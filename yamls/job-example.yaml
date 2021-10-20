@@ -3,7 +3,6 @@ kind: Job
 metadata:
   name: job-example
 spec:
-  completions: 5
   template:
     spec:
       containers:
@@ -12,5 +11,5 @@ spec:
         command: ["bash"]
         args:
         - "-c"
-        - "echo 'Hello World'; sleep 50; echo 'Bye'"
+        - "echo 'Hello World'; sleep 5; echo 'Bye'"
       restartPolicy: Never

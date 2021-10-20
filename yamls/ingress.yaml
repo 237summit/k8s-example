@@ -2,7 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: marvel-heroes-ingress
+  namespace: ingress-nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
+  defaultBackend:
+    service:
+      name: nginx
+      port:
+        number: 80
   rules:
   - host: node1.example.com
     http:
