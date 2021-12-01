@@ -1,0 +1,9 @@
+인증서 기능 추가 설정
+
+1. Ingress 컨트롤러가 TLS를 사용하려면, Ingress에 certificate 와 a private key를 연계해야 한다.
+$ openssl genrsa -out tls.key 2048
+$ openssl req -new -x509 -key tls.key -out tls.crt -days 365 -subj /CN=node2.example.com
+
+
+2. 생성한 인증서를 secret에 기록한다.
+$ kubectl create secret tls tls-secret --cert=tls.crt --key=tls.key
