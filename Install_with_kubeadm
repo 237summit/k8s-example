@@ -88,7 +88,7 @@ EOF
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet-1.21.4-0 kubeadm-1.21.4-0 kubectl-1.21.4-0 --disableexcludes=kubernetes
+yum install -y kubelet-1.22.4-0 kubeadm-1.22.4-0 kubectl-1.22.4-0 --disableexcludes=kubernetes
 
 sudo systemctl enable --now kubelet
 
@@ -96,12 +96,19 @@ sudo systemctl enable --now kubelet
 5. Install a single control-plane Kubernetes cluster
 # 어떤 CNI?
 # Create a single-host Kubernetes cluster
-# kubeadm init --pod-network-cidr=192.168.0.0/16
-# Install Calico
-# kubectl apply -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 
+# case1 : Calico
+kubeadm init --pod-network-cidr=10.244.0.0/16
+# Install Calico
+kubectl apply -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+
+#Case2 : Weave
 # initialize the control-plane
 kubeadm init 
+
+#Case3: Flannel
+kubeadm init --pod-network-cidr=10.244.0.0/16
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
 
 # kubectl 명령을 쓸 수 있도록 허용
