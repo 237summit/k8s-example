@@ -68,6 +68,7 @@ EOF
 systemctl enable docker
 systemctl daemon-reload
 systemctl restart docker
+docker version
 
 
 4. Installing kubeadm, kubelet and kubectl
@@ -97,19 +98,19 @@ sudo systemctl enable --now kubelet
 # 어떤 CNI?
 # Create a single-host Kubernetes cluster
 
-# case1 : Calico
-kubeadm init --pod-network-cidr=10.244.0.0/16
+# case1: Calico
+kubeadm init --pod-network-cidr=192.168.0.0/16
 # Install Calico
-kubectl apply -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
-
-#Case2 : Weave
-# initialize the control-plane
-kubeadm init 
-
-#Case3: Flannel
+curl https://docs.projectcalico.org/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
+################################################################
+#Case2: Flannel
 kubeadm init --pod-network-cidr=10.244.0.0/16
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-
+###############################################################
+#Case3: Weave
+# initialize the control-plane
+kubeadm init 
 
 # kubectl 명령을 쓸 수 있도록 허용
 mkdir -p $HOME/.kube
@@ -119,13 +120,13 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 ## token 별도로 저장
 cat > token.txt
 kubeadm init 명령 시 출력된 토큰을 저장해서 이후에 worker node들이 join할 때 사용
+#
 
-
-Installing a Pod network add-on
+# Installing a Pod network add-on
 #CNI - weave
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 kubectl get nodes
-
+#############################################################
 
 6. Worker Nodes Join
 ## worker nodes
