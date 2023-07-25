@@ -1,5 +1,7 @@
 # Kubernetes yaml files
-
+- 쿠버네티스 핵심과정 실습 example.
+- git clone 명령으로 다운로드 받은 후  yamls 디렉토리로 이동하여 실습을 진행하시면 됩니다.
+---
 ## contents
 
 - **yamls/
