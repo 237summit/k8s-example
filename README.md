@@ -3,8 +3,10 @@
 - git clone 명령으로 다운로드 받은 후  yamls 디렉토리로 이동하여 실습을 진행하시면 됩니다.
 ---
 ## contents
+- **Setting_NFS_Server/
+- └── setting NFS on ubuntu
 
-- **yamls/
+- yamls/
 - ├── appjs.yaml
 - ├── cronjob-example.yaml
 - ├── daemonset-fluentd.yaml
@@ -30,6 +32,7 @@
 - ├── svc-node.yaml
 - └── tensorflow.yaml**
 
-
+---
+## 2023.08.28 NFS 서버구성 추가
 ## 2021.10.15일 업데이트
 

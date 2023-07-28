@@ -1,0 +1,25 @@
+[Server]
+sudo -i
+apt update
+apt install -y nfs-kernel-server
+mkdir -p /share/webdata  /share/disk{1..3}
+echo "TEST WEB" > /share/webdata/index.html
+
+vi /etc/exports
+/share/webdata    *(ro)
+/share/disk1        *(rw,sync,no_root_squash)
+/share/disk2        *(rw,sync,no_root_squash)
+/share/disk3        *(rw,sync,no_root_squash)
+
+export -var
+exit
+
+[Client]
+sudo -i
+apt update
+apt install -y nfs-kernel-server
+#TEST
+mount -t nfs 10.0.2.10:/share/webdata  /mnt
+ls /mnt   #index.html
+umount /mnt
+exit
