@@ -1,0 +1,198 @@
+* 쿠버네티스에서 스토리지 사용
+1. worker  node에서 스토리지 인식 == 인프라작업
+    예:  localdisk, NFS share volume, ISCSI, FC divice, EBS.., 
+2. k8s에서 로걸시스템에 연결될 스토리지를
+    사용할 스토리지를  volume 으로 정의(name)
+    hostPath, EBS, FC xx  ISCSI xxx 
+   volumes:
+   - name: webdata
+     hostPath:
+       path: /webdata
+   - name: xx
+     fc:
+       lun: xxxxx
+   - name: cache
+     ebs:
+       id: xxxx
+
+3. 정의한 디스크를 컨테이너 volume 으로 마운트 실행
+   Pod 
+   spec:
+     name: webserver
+     image: nginx
+     volumeMounts:
+     - name: webdata
+       mountPath: /usr/share/nginx/html
+
+
+
+example
+worker1:
+sudo -i
+mkdir /webdata
+echo "node1" > /webdata/index.html
+
+worker2:
+sudo -i
+mkdir /webdata
+echo "node2" > /webdata/index.html
+
+cat << END > pod-volume.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx:1.15
+    name: nginx
+    volumeMounts:
+    - mountPath: /usr/share/nginx/html
+      name: html
+  volumes:
+  - name: html
+    hostPath:
+      path: /webdata
+
+END
+
+kubectl apply -f pod-volume.yaml
+kubectl get pos
+curl IP_address
+
+
+
+
+
+  containers:
+  - image: nginx:1.15
+    name: nginx
+    volumeMounts:
+    - mountPath: /usr/share/nginx/html
+      name: html
+
+  volumes:
+  - name: html
+    emptyDir: {}
+
+
+    nfs:
+      server: nfs-server.example.com
+      path: /share/webdata
+      readOnly: true
+  
+    hostPath:
+      path: /webdata
+
+    fc:
+      targetWWNs:
+        - '500a0982991b8dc5'
+        - '500a0982891b8dc5'
+      lun: 2
+      fsType: ext4
+      readOnly: true
+
+   iscsi
+     target: 
+     iqn: 
+     lun:
+     fsType
+
+    nfs:
+      server: nfs-server.example.com
+      path: /share/webdata
+      readOnly: true
+
+
+NFS Server의 공유 스토리지를 컨테이너에서 사용하기
+10.0.2.10
+/share/webdata/index.html
+
+
+1. 인프라 구성
+[MASTER]
+sudo -i
+apt update
+apt install -y nfs-kernel-server
+mkdir -p /share/webdata
+mkdir -p /share/disk{1..3}
+echo "TEST WEB" > /share/webdata/index.html
+
+vi /etc/exports
+/share/webdata    *(ro)
+/share/disk1        *(rw,sync,no_root_squash)
+/share/disk2        *(rw,sync,no_root_squash)
+/share/disk3        *(rw,sync,no_root_squash)
+
+export -var
+exit
+
+
+[WORKER1, 2]
+sudo -i
+apt update
+apt install -y nfs-kernel-server
+#TEST
+mount -t nfs 10.0.2.10:/share/webdata  /mnt
+ls /mnt   #index.html
+umount /mnt
+exit
+
+2.webserver deployment : lab-web-volume.yaml 
+- image : nginx:1.15
+- name: lab-nginx
+- replicas : 3
+- labels:  app: nginx
+- volumemount : nfs server(10.0.2.10)
+  sharedir : /share/webdata
+  readonly
+--
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.15
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: html
+      volumes:
+      - name: html
+        nfs:
+          server: 10.0.2.10
+          path: /share/webdata
+          readOnly: true
+--
+
+
+3.Service : NodePort
+--
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-volume-svc
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+--

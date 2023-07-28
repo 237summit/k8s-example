@@ -1,0 +1,109 @@
+1. VMWare workstation - 네트워크 구성
+2. 가상머신 로딩
+3. 원격로그인
+  master    10.0.2.10
+  worker1 10.0.2.12
+
+k8s-master : 10.0.2.10
+k8s-worker1 : 10.0.2.11
+k8s-worker2 : 10.0.2.12
+
+root / password
+ubuntu / ubuntu
+
+k8s install 완료
+==================
+
+#kubectl command  자동완성기능 적용
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+
+실습: kubectl 명령을 통해 nginx : 1.14를 동작
+
+1. kubectl run 명령을 이용해 웹 서버 컨테이너(nginx:1.14) 실행하기
+kubectl run --help
+kubectl run webserver --image nginx:1.14
+kubectl get pods
+kubectl get pod -o wide
+kubectl get pods -o yaml|json
+kubectl describe pod webserver
+kubectl delete pod webserver
+
+
+2. deployment API를 이용해 nginx:1.14 컨테이너를 실행
+# deployment  nginx 파드를 2개 실행
+kubectl create deployment webserver --image nginx:1.14 --replicas 2
+kubectl get deployments
+kubectl describe deployments.apps webserver
+kubectl get pods
+kubectl delete deploy webserver
+kubectl get pods,deploy
+
+3. pod yaml 파일 만들기
+kubectl run webserver --image nginx:1.14 --dry-run=client
+kubectl run webserver --image nginx:1.14 --dry-run=client -o yaml > webserver-pod.yaml
+ls
+kubectl apply -f webserver-pod.yaml
+kubectl get pods -o wide
+
+cp webserver-pod.yaml apache-pod.yml
+cat apache-pod.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apache
+spec:
+  containers:
+  - image: httpd
+    name: webserver
+
+kubectl apply -f apache-pod.yml
+
+4. 단축 명령 사용확인
+kubectl api-resources
+kubectl get po
+
+5. 실시간 pod 동작 상태 모니터링
+kubectl get pods
+watch -n 1 kubectl get pods -o wide
+
+6. kubectl 명령어 도움말 보기
+kubectl --help
+kubectl get --help
+
+
+
+1. kubectl command를 이용해서 apache 웹서버 Pod를 실행하시오.
+• podname: apache
+• image: httpd
+• port: 80
+kubectl run apache --image httpd:latest --port 80
+
+
+2. 위에서 생성한 apache pod의 템플릿을 pod-apache.yaml로 생성하시오.
+kubectl run apache --image httpd:latest --port 80 --dry-run=client  -o yaml > pod-apache.yaml
+
+3. 동작되고 있는 apache POD를 삭제합니다.
+kubectl delete pod apache
+
+4. 다음과 같은 Pod를 실행하는 pod template을 생성한후 실행하시오.
+• filename: pod-apache.yaml
+• podname: apache
+• image: httpd
+• port: 80
+• container name: httpd
+kubectl run pod-apache --image httpd:latest --port 80 --dry-run=client  -o yaml > pod-apache.yaml
+vi pod-apache.yaml
+
+kubectl apply -f pod-apache.yaml
+kubectl get pod -o wide
+NAME         READY   STATUS    RESTARTS   AGE   IP               NODE          NOMINATED NODE   READINESS GATES
+pod-apache   1/1     Running   0          44s   192.168.194.76   k8s-worker1   <none>           <none>
+
+
+5. 동작중인 apache pod의 IP ADDRESS는 몇인가?
+해당 IPAddress로 curl 명령을 실행해본다.
+192.168.194.76
+6. apache pod는 어느 노드에서 실행중인가?
+k8s-worker1
