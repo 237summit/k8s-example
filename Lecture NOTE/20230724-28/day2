@@ -1,0 +1,234 @@
+실습 파일 다운로드
+sudo apt update
+sudo apt install git -y
+git clone  https://github.com/237summit/k8s-example.git
+cd k8s-example
+cd yamls
+ls
+
+
+1. 다음의 조건으로 ReplicationController를 사용하는 rc-lab.yaml 파일을 생성하고 동작시킵니다.
+labels(name: apache, app:main, rel:stable)를 가지는 httpd:2.2 버전의 Pod를 2개 운영합니다.
+• rc name : rc-mainui
+• container : httpd:2.2
+
+현재 디렉토리에 rc-lab.yaml 파일이 생성되어야 하고, 애플리케이션 동작은 파일을 이용해 실행합니다.
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: rc-mainui
+spec:
+  replicas: 2
+  selector:
+    name: apache
+    rel: stable
+  template:
+    metadata:
+      name: httpd-pod
+      labels:
+        name: apache
+        app: main
+        rel: stable
+    spec:
+      containers:
+      - name: httpd
+        image: httpd:2.2
+
+2. kubectl scale 명령으로 http:2.2 버전의 컨테이너를 3개로 확장하시오.
+CLI $
+
+ReplicationController
+  selector:
+    name: apache
+    rel: stable
+
+
+ReplicSet
+  selector:
+    matchLables:
+      name: apache
+    matchExpressions:
+      - {key: rel, operator: In, values: ["stable","beta"]}
+
+
+
+
+    matchLabels:
+      app: web
+    matchExpressions:
+      - {key: version, operator: In, values:["1.14","1.15"] }
+
+
+
+
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-mainui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: apache
+      app: main
+      rel: stable
+  template:
+    metadata:
+      name: httpd-pod
+      labels:
+        name: apache
+        app: main
+        rel: stable
+    spec:
+      containers:
+      - name: httpd
+        image: httpd:2.2
+
+cp rs-nginx.yaml deploy-nginx.yaml
+vi deploy-nginx.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-webui
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+
+
+
+
+
+
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ds-mainui
+spec:
+  selector:
+    matchLabels:
+      name: ds-mainui 
+  template:
+    metadata:
+      labels:
+        name: ds-mainui 
+    spec:
+      containers:
+      - name: web-container
+        image: httpd:2.2
+        resources:
+          requests:
+            cpu: 500m  
+      nodeSelector:
+          disktype: ssd
+
+컨테이너 기반의 애플리케이션 동작
+
+1. 
+
+vi deploy-nginx.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-webui
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+
+
+kubectl apply -f deploy-nginx.yaml
+
+
+
+
+for n in $(seq 20)
+do
+  curl 10.100.100.100
+  sleep 1
+done
+
+
+
+
+1. httpd:2.4 컨테이너를 실행하는 deployment 동작
+- name: lab-apache.yaml
+- replicas : 3
+- labels:  app: apache, rel: product
+cat lab-apache.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-apache
+  annotations:
+    kubernetes.io/change-cause: version 2.4
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: apache
+      rel: product
+  template:
+    metadata:
+      name: deploy-apache
+      labels:
+        app: apache
+        rel: product
+    spec:
+      containers:
+      - name: httpd-container
+        image: httpd:2.4
+
+2. Service :
+- NodePort 외부 접속 허용되도록 설정
+- NodePort: 30100
+cat lab-svc-apache.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-svc-apache-nodeport
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30100  
+  selector:
+    app: apache
+
+3. pod : kubectl run -it 
+- name: client 
+- image: centos:7
+- 컨테이너 내부에서 
+	curl clusterIP
+
+ kubectl run -it test --image centos:7
+# curl 10.106.108.172
+
+4.외부접속 허용되는지 확인
+웹브라우저로 : 10.0.2.11:30100
+
+
