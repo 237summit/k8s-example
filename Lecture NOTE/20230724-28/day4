@@ -1,0 +1,141 @@
+    Liveness:       http-get http://:80/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /
+        port: 80
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+
+
+
+$ cat lab-webui.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webui
+  labels:
+    app: web
+    tier: frontend
+    release: stable
+spec:
+  containers:
+  - image: nginx:1.14
+    name: nginx
+    ports:
+    - containerPort: 80
+    resources:
+      requests:
+        memory: 700Mi
+        cpu: 500m
+  nodeSelector:
+    disktype: "ssd"
+
+
+
+# configMap
+$ kubectl create configmap myconfig --from-literal interval=10     --from-file=weplat-data
+
+
+$ cat pod-cm.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-configmap
+spec:
+  containers:
+  - image: nginx:1.14
+    name: nginx
+    ports:
+    - containerPort: 80
+    env:
+    - name: INTERVAL
+      valueFrom:
+        configMapKeyRef:
+          name: myconfig
+          key: interval
+#      value: 10
+    volumeMounts:
+    - name: datafile
+      mountPath: "/tmp"
+      readOnly: true
+  volumes:
+  - name: datafile
+    configMap:
+      name: myconfig
+
+
+# Secret
+$ kubectl create secret generic mysecret --from-literal interval=10  --from-file=weplat-data
+
+$ kubectl get secrets mysecret -o yaml
+
+$ cat > pod-secret.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-secret
+spec:
+  containers:
+  - image: nginx:1.14
+    name: nginx
+    ports:
+    - containerPort: 80
+    env:
+    - name: INTERVAL
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: interval
+#      value: 10
+    volumeMounts:
+    - name: datafile
+      mountPath: "/tmp"
+      readOnly: true
+  volumes:
+  - name: datafile
+    secret:
+      secretName: mysecret
+
+
+
+cronjob
+
+cron schedule
+분      시    일      월     요일
+0-59  0-23  1-31  1-12  0(sun)-7(sun)
+
+0     9    *    *      *   매일 9 정각에 
+0       *      *        *         *    매시 정각에 실행
+0       *      *        *     1-5  주중 1시간마다 실행
+*      *       *       *          *    1분에 1회씩 실행
+*/2     *       *       *          *   2분에 1회씩 실행
+
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-job-example
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 50
+      template:
+        spec:
+          containers:
+          - name: centos-container
+            image: centos:7
+            command: ["bash"]
+            args:
+            - "-c"
+            - "echo 'Hello World'; sleep 5; echo 'Bye'"
+          restartPolicy: Never
+
+
+
