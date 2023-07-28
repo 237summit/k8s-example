@@ -2,7 +2,7 @@
 
 | 과정명 | Kubernetes 핵심 기능 이해 과정 |
 | --- | --- |
-| 강사 소개 | https://www.notion.so/b03cc7b2dc3c4230bc6a8d3bbc11a135?pvs=21(seongmi.lee@weplat.site) |
+| 강사 소개 | 이성미(seongmi.lee@weplat.site) |
 | 강의 시간 | 32시간(8h -4day) |
 | 강의 소개 | - Kubernetes는 컨테이너화 된 애플리케이션의 자동 디플로이, 스케일링 등을 제공하는 관리 시스템으로 오픈 소스입니다. 원래 구글에 의해 설계되었고 현재 linux foundation 산하의 CNCF에 의해 관리되고 있습니다. 
 - 본 과정은 http://kubernets.io  홈페이지에서 소개하는 핵심 기능 10가지를 중심으로 쿠버네티스 이해부터 운영까지  Hands-on  중심으로 진행합니다. |
